@@ -1,49 +1,25 @@
-import telebot
-from config import TOKEN
-from extensions import APIException, CurrencyConverter
+# main.py
 
-bot = telebot.TeleBot(TOKEN)
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+from extensions import start, values, help, button, keyboard_handler
+from config import TOKEN, API_KEY  # Используем TOKEN вместо TELEGRAM_TOKEN
 
+def main():
+    application = Application.builder().token(TOKEN).build()  # Здесь заменили TELEGRAM_TOKEN на TOKEN
 
-# Команда /start и /help
-@bot.message_handler(commands=["start", "help"])
-def send_welcome(message):
-    text = (
-        "Добро пожаловать! Я бот для конвертации валют.\n"
-        "Используйте команду в формате:\n"
-        "<валюта1> <валюта2> <количество>\n\n"
-        "Пример: USD RUB 100\n"
-        "Чтобы узнать список доступных валют, используйте /values."
-    )
-    bot.reply_to(message, text)
+    # Регистрируем обработчики команд
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("values", values))
+    application.add_handler(CommandHandler("help", help))
 
+    # Регистрируем обработчики инлайн-кнопок
+    application.add_handler(CallbackQueryHandler(button))
 
-# Команда /values
-@bot.message_handler(commands=["values"])
-def send_values(message):
-    text = "Доступные валюты: USD, EUR, RUB и другие."
-    bot.reply_to(message, text)
+    # Регистрируем обработчик сообщений с клавиатуры
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, keyboard_handler))
 
-
-# Обработчик конвертации валют
-@bot.message_handler(content_types=["text"])
-def convert_currency(message):
-    try:
-        values = message.text.split()
-        if len(values) != 3:
-            raise APIException("Неправильный формат. Используйте: <валюта1> <валюта2> <количество>")
-
-        base, quote, amount = values
-        result = CurrencyConverter.get_price(base, quote, amount)
-        response = f"{amount} {base.upper()} = {result} {quote.upper()}"
-        bot.reply_to(message, response)
-
-    except APIException as e:
-        bot.reply_to(message, f"Ошибка: {e}")
-
-    except Exception as e:
-        bot.reply_to(message, f"Неизвестная ошибка: {e}")
-
+    # Запуск бота
+    application.run_polling()
 
 if __name__ == "__main__":
-    bot.polling(none_stop=True)
+    main()
