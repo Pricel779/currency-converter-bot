@@ -2,7 +2,7 @@ import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, CallbackContext
 
-API_KEY = "81feb0f157795bafa4db92e6"  # Ваш API ключ
+API_KEY = "81feb0f157795bafa4db92e6"  # API ключ
 
 
 # Функция получения курсов валют
@@ -119,7 +119,7 @@ async def convert(update: Update, context: CallbackContext):
 
 # Основная функция
 def main():
-    token = "7714028301:AAHTtmSLDTRRFnk_N9kendTg2clWZXHnywo"  # Замените на ваш токен
+    token = "7714028301:AAHTtmSLDTRRFnk_N9kendTg2clWZXHnywo"  # токен
 
     application = Application.builder().token(token).build()
 
